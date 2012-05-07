@@ -1,4 +1,4 @@
-from sqlalchemy import BLOB, Column, Integer, Float, ForeignKey, String, create_engine
+from sqlalchemy import BLOB, Column, Integer, Float, ForeignKey, String, create_engine, UniqueConstraint, Text, CheckConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref, sessionmaker
 
@@ -34,6 +34,7 @@ class Chromosome(Base) :
 
 class Region(Base):
     __tablename__ = 'Region'
+    __table_args__ = (UniqueConstraint('name','region_type_id'),)
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -43,6 +44,23 @@ class Region(Base):
     chrom = relationship('Chromosome')
     start = Column(Integer)
     end = Column(Integer)
+    strand = Column(String(1),CheckConstraint("strand IN ('+','-')"))
+    notes = Column(Text)
+
+class RegionSet(Base):
+    __tablename__ = 'RegionSet'
+
+    id = Column(Integer,primary_key=True)
+    name = Column(String,unique=True)
+    notes = Column(Text)
+
+class RegionMembership(Base) :
+    __tablename__ = 'RegionMembership'
+    
+    region_set_id = Column(Integer,ForeignKey('RegionSet.id'),primary_key=True)
+    region_set = relationship('RegionSet')
+    region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
+    region = relationship('Region')
 
 class RegionData(Base) :
     __tablename__ = 'RegionData'
@@ -75,8 +93,8 @@ def add_new_or_pass(session,types,cls) :
         try :
             session.add(cls(**r))
             session.commit()
-        except :
-            pass
+        except Exception, e:
+            print e
 
 
 def get_session(fn) :
@@ -85,24 +103,25 @@ def get_session(fn) :
     Base.metadata.create_all(engine)
 
     session = sessionmaker(bind=engine)()
-    session.autocommit = True
 
     return session
 
 
-def populate_lookup_tables(engine) :
+def populate_lookup_tables(fn) :
 
-    session = get_session()
+    session = get_session(fn)
 
-    add_new_or_pass(session,dict(('name',t) for t in region_types),RegionType)
-    add_new_or_pass(session,dict(('name',t) for t in data_types),DataType)
-    add_new_or_pass(session,dict(('name',t) for t in seq_types),SeqType)
-    add_new_or_pass(session,dict(('name',t) for t in chroms),Chromosome)
+    add_new_or_pass(session,[{'name':t} for t in region_types],RegionType)
+    add_new_or_pass(session,[{'name':t} for t in data_types],DataType)
+    add_new_or_pass(session,[{'name':t} for t in seq_types],SeqType)
+    add_new_or_pass(session,[{'name':t} for t in chroms],Chromosome)
 
+    session.commit()
+    session.close()
 
 if __name__ == '__main__' :
 
-    engine = create_engine('sqlite:///adipo_sight.db')
+    db_fn = 'adipo_sight.db'
 
-    populate_lookup_tables(engine)
+    populate_lookup_tables(db_fn)
 
