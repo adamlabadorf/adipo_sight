@@ -11,7 +11,7 @@ class RegionType(Base) :
     id = Column(Integer,primary_key=True)
     name = Column(String,unique=True)
 
-data_types = ['absolute expression','differential expression','ChIP binding']
+data_types = ['control expression','experiment expression','log2 expression fold change','ChIP binding']
 class DataType(Base) :
     __tablename__ = 'DataType'
 
@@ -62,6 +62,12 @@ class RegionMembership(Base) :
     region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
     region = relationship('Region')
 
+class Condition(Base) :
+    __tablename__ = 'Condition'
+
+    id = Column(Integer,primary_key=True)
+    name = Column(String)
+
 class RegionData(Base) :
     __tablename__ = 'RegionData'
 
@@ -70,10 +76,14 @@ class RegionData(Base) :
     region = relationship('Region')
     data_type_id = Column(Integer, ForeignKey('DataType.id'),primary_key=True)
     data_type = relationship('DataType')
+    condition_id = Column(Integer, ForeignKey('Condition.id'),primary_key=True)
+    condition = relationship('Condition')
     value = Column(Float,nullable=False)
+    meta1lbl = Column(String)
     meta1 = Column(String)
+    meta2lbl = Column(String)
     meta2 = Column(String)
-    meta3 = Column(String)
+    meta3lbl = Column(String)
 
 class SeqData(Base) :
     __tablename__ = 'SeqData'
@@ -82,20 +92,39 @@ class SeqData(Base) :
     region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
     region = relationship('Region')
     seq_type_id = Column(Integer, ForeignKey('SeqType.id'),primary_key=True)
-    region = relationship('SeqType')
+    seq_type = relationship('SeqType')
+    condition_id = Column(Integer, ForeignKey('Condition.id'),primary_key=True)
+    condition = relationship('Condition')
     value = Column(BLOB,nullable=False)
-    meta1 = Column(BLOB)
-    meta2 = Column(BLOB)
-    meta3 = Column(BLOB)
+    meta1lbl = Column(String)
+    meta1 = Column(String)
+    meta2lbl = Column(String)
+    meta2 = Column(String)
+    meta3lbl = Column(String)
 
 def add_new_or_pass(session,types,cls) :
+    objs = []
     for r in types :
         try :
-            session.add(cls(**r))
+            new_obj = cls(**r)
+            session.add(new_obj)
             session.commit()
+            objs.append(new_obj)
         except Exception, e:
+            session.rollback()
+            objs.append(None)
             print e
 
+    return objs
+
+def get_lu_or_add(session,name,cls,fields=None) :
+    r = session.query(cls).filter(getattr(cls,'name')==name).first()
+    if r is None :
+        # add a new record and return it
+        kwargs = fields or {}
+        r = cls(name=name,**kwargs)
+        session.add(r)
+    return r
 
 def get_session(fn) :
 

@@ -24,16 +24,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.80082581"
-     inkscape:cx="207.89391"
-     inkscape:cy="75.209525"
+     inkscape:zoom="0.51926458"
+     inkscape:cx="147.77708"
+     inkscape:cy="-145.45813"
      inkscape:document-units="px"
-     inkscape:current-layer="g3168"
+     inkscape:current-layer="g4056"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="988"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1080"
+     inkscape:window-height="1896"
+     inkscape:window-x="1080"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -510,7 +510,7 @@
          id="tspan3290"> - binding enrichment </tspan></text>
     <g
        id="g4089"
-       transform="translate(-54.943288,208.53474)">
+       transform="translate(-62.65796,208.53474)">
       <g
          id="g3994">
         <rect
@@ -573,7 +573,7 @@
     </g>
     <g
        id="g4026"
-       transform="translate(-418.31819,178.56567)">
+       transform="translate(-449.32374,178.56567)">
       <rect
          style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="rect3897"
@@ -621,7 +621,7 @@
     </g>
     <g
        id="g4036"
-       transform="translate(-222.27055,-49.948443)">
+       transform="translate(-224.24183,-49.948443)">
       <rect
          y="952.58636"
          x="238.40244"
@@ -669,7 +669,7 @@
     </g>
     <g
        id="g4046"
-       transform="translate(295.9445,51.197149)">
+       transform="translate(193.8135,81.155574)">
       <rect
          style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="rect3944"
@@ -717,11 +717,11 @@
     </g>
     <g
        id="g4103"
-       transform="translate(221.02185,-156.08887)">
+       transform="translate(153.15768,-156.08887)">
       <rect
          y="1067.3727"
          x="67.105865"
-         height="210.14734"
+         height="242.82927"
          width="139.50958"
          id="rect3964"
          style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
@@ -762,35 +762,39 @@
            y="1150.1063"
            x="71.968536"
            sodipodi:role="line">data_type_id</tspan><tspan
-           id="tspan3976"
            y="1180.1063"
+           x="71.968536"
+           sodipodi:role="line"
+           id="tspan3168">condition_id</tspan><tspan
+           id="tspan3976"
+           y="1210.1063"
            x="71.968536"
            sodipodi:role="line">value</tspan><tspan
            id="tspan3984"
-           y="1210.1063"
+           y="1240.1063"
            x="71.968536"
            sodipodi:role="line">meta1</tspan><tspan
            id="tspan3986"
-           y="1240.1063"
+           y="1270.1063"
            x="71.968536"
            sodipodi:role="line">meta2</tspan><tspan
            id="tspan3988"
-           y="1270.1063"
+           y="1300.1063"
            x="71.968536"
            sodipodi:role="line">meta3</tspan><tspan
            id="tspan3978"
-           y="1300.1063"
+           y="1330.1063"
            x="71.968536"
            sodipodi:role="line" /></text>
     </g>
     <g
        id="g4056"
-       transform="translate(49.94844,42.456176)">
+       transform="translate(-18.13889,42.456176)">
       <rect
          style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="rect4000"
          width="143.92445"
-         height="210.14734"
+         height="245.55275"
          x="238.40244"
          y="1173.3293" />
       <rect
@@ -833,22 +837,26 @@
            sodipodi:role="line"
            x="243.26511"
            y="1286.063"
-           id="tspan4016">value</tspan><tspan
+           id="tspan3170">condition_id</tspan><tspan
            sodipodi:role="line"
            x="243.26511"
            y="1316.063"
-           id="tspan4018">meta1</tspan><tspan
+           id="tspan4016">value</tspan><tspan
            sodipodi:role="line"
            x="243.26511"
            y="1346.063"
-           id="tspan4020">meta2</tspan><tspan
+           id="tspan4018">meta1</tspan><tspan
            sodipodi:role="line"
            x="243.26511"
            y="1376.063"
-           id="tspan4022">meta3</tspan><tspan
+           id="tspan4020">meta2</tspan><tspan
            sodipodi:role="line"
            x="243.26511"
            y="1406.063"
+           id="tspan4022">meta3</tspan><tspan
+           sodipodi:role="line"
+           x="243.26511"
+           y="1436.063"
            id="tspan4024" /></text>
     </g>
     <g
@@ -900,7 +908,7 @@
            sodipodi:role="line" /></text>
     </g>
     <g
-       transform="translate(-694.28332,333.40583)"
+       transform="translate(-694.28332,326.5971)"
        id="g3150">
       <rect
          y="840.44891"
