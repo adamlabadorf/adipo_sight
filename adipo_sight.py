@@ -71,7 +71,7 @@ class Condition(Base) :
 class RegionData(Base) :
     __tablename__ = 'RegionData'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer,primary_key=True)
     region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
     region = relationship('Region')
     data_type_id = Column(Integer, ForeignKey('DataType.id'),primary_key=True)
@@ -113,7 +113,7 @@ def add_new_or_pass(session,types,cls) :
         except Exception, e:
             session.rollback()
             objs.append(None)
-            print e
+            #print e
 
     return objs
 
@@ -124,6 +124,7 @@ def get_lu_or_add(session,name,cls,fields=None) :
         kwargs = fields or {}
         r = cls(name=name,**kwargs)
         session.add(r)
+        session.commit()
     return r
 
 def get_session(fn) :
