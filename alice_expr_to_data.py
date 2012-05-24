@@ -79,7 +79,9 @@ not_found_list = []
 
 data_types = dict([(r.name,r) for r in adipo_sess.query(DataType).all()])
 
-for r in f :
+for data_i, r in enumerate(f) :
+    if (data_i % 1000) == 0 :
+        print 1000*data_i
     gene = r['gene']
 
     # add gene set
@@ -89,9 +91,13 @@ for r in f :
     # add region
     chrm, st_en = r['locus'].split(':')
     st, en = map(int, st_en.split('-'))
-    # region_type = other
+
     region_type = adipo_sess.query(RegionType).filter(RegionType.name=='other').first()
     chrom = adipo_sess.query(Chromosome).filter(Chromosome.name==chrm).first()
+    if chrom is None :
+        chrom = Chromosome(name=chrm)
+        adipo_sess.add(chrom)
+        adipo_sess.commit()
 
     add_d = {'name': '%s diff expr'%r['gene'],
              'region_type_id': region_type.id,
@@ -102,10 +108,11 @@ for r in f :
              'notes': 'differentially expressed region, determined by cufflinks'
             }
 
-    print add_d
-
     region_recs = add_new_or_pass(adipo_sess,[add_d],Region)
     region_rec = region_recs[0]
+
+    if region_rec is None :
+        region_rec = adipo_sess.query(Region).filter(Region.name == add_d['name'] and Region.region_type_id == add_d['region_type_id']).first()
 
     conditions = 'tnf','dex','hi','hypo'
 
@@ -116,7 +123,8 @@ for r in f :
         cond_rec = get_lu_or_add(adipo_sess,cond,Condition)
         for typ, fld in zip(('control expression','experiment expression','log2 expression fold change'),('val1','val2','log2fc')) :
             cond_field = '%s.%s'%(cond,fld)
-            data_field_d = {'region_id':region_rec.id,
+            data_field_d = {'id':data_i,
+                            'region_id':region_rec.id,
                             'data_type_id':data_types[typ].id,
                             'condition_id':cond_rec.id,
                             'value': float(r[cond_field]),
@@ -128,3 +136,4 @@ for r in f :
 
             adipo_sess.add(RegionData(**data_field_d))
     adipo_sess.commit()
+print
