@@ -57,7 +57,7 @@ fieldnames =["gene",
 # locus format = chrX:\d-\d
 
 
-fn = '/nfs/data/lky/vitro_vivo/vitro_entrez_all.txt'
+fn = 'vitro_entrez_all.txt'
 f = DictReader(open(fn),delimiter='\t')
 
 kg_sess = get_session('knownGene.db')
@@ -80,8 +80,8 @@ not_found_list = []
 data_types = dict([(r.name,r) for r in adipo_sess.query(DataType).all()])
 
 for data_i, r in enumerate(f) :
-    if (data_i % 1000) == 0 :
-        print 1000*data_i
+    if (data_i % 100) == 0 :
+        print data_i
     gene = r['gene']
 
     # add gene set
@@ -112,7 +112,11 @@ for data_i, r in enumerate(f) :
     region_rec = region_recs[0]
 
     if region_rec is None :
-        region_rec = adipo_sess.query(Region).filter(Region.name == add_d['name'] and Region.region_type_id == add_d['region_type_id']).first()
+        region_rec = adipo_sess.query(Region) \
+                               .filter(Region.name == add_d['name'] and
+                                       Region.region_type_id == add_d['region_type_id']).first()
+    else :
+        region_rec.region_sets.append(gene_set)
 
     conditions = 'tnf','dex','hi','hypo'
 
@@ -135,5 +139,5 @@ for data_i, r in enumerate(f) :
                             }
 
             adipo_sess.add(RegionData(**data_field_d))
-    adipo_sess.commit()
+adipo_sess.commit()
 print
