@@ -1,4 +1,4 @@
-from sqlalchemy import BLOB, Column, Integer, Float, ForeignKey, String, create_engine, UniqueConstraint, Text, CheckConstraint
+from sqlalchemy import BLOB, Column, Integer, Float, ForeignKey, String, create_engine, UniqueConstraint, Text, CheckConstraint, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref, sessionmaker
 
@@ -32,6 +32,11 @@ class Chromosome(Base) :
     id = Column(Integer,primary_key=True)
     name = Column(String,unique=True)
 
+#region_membership_table = Table('RegionMembership', Base.metadata,
+#                            Column('region_set_id', Integer, ForeignKey('RegionSet.id'),primary_key=True),
+#                            Column('region_id', Integer, ForeignKey('Region.id'),primary_key=True)
+#                          )
+
 class Region(Base):
     __tablename__ = 'Region'
     __table_args__ = (UniqueConstraint('name','region_type_id'),)
@@ -52,6 +57,7 @@ class RegionSet(Base):
 
     id = Column(Integer,primary_key=True)
     name = Column(String,unique=True)
+    regions = relationship("Region",secondary=lambda: Base.metadata.tables['RegionMembership'],backref="region_sets")
     notes = Column(Text)
 
 class RegionMembership(Base) :
