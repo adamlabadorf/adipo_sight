@@ -80,8 +80,9 @@ not_found_list = []
 data_types = dict([(r.name,r) for r in adipo_sess.query(DataType).all()])
 
 for data_i, r in enumerate(f) :
-    if (data_i % 100) == 0 :
+    if (data_i % 1000) == 0 :
         print data_i
+        adipo_sess.commit()
     gene = r['gene']
 
     # add gene set
@@ -139,5 +140,4 @@ for data_i, r in enumerate(f) :
                             }
 
             adipo_sess.add(RegionData(**data_field_d))
-adipo_sess.commit()
 print
