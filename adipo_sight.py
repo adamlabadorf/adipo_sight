@@ -51,6 +51,8 @@ class Region(Base):
     end = Column(Integer)
     strand = Column(String(1),CheckConstraint("strand IN ('+','-')"))
     notes = Column(Text)
+    region_data = relationship("RegionData",cascade="all, delete, delete-orphan")
+    seq_data = relationship("SeqData",cascade="all, delete, delete-orphan")
 
 class RegionSet(Base):
     __tablename__ = 'RegionSet'
@@ -76,13 +78,14 @@ class Condition(Base) :
 
 class RegionData(Base) :
     __tablename__ = 'RegionData'
+    __table_args__ = (UniqueConstraint('region_id','data_type_id','condition_id'),)
 
     id = Column(Integer,primary_key=True)
-    region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
+    region_id = Column(Integer, ForeignKey('Region.id'))
     region = relationship('Region')
-    data_type_id = Column(Integer, ForeignKey('DataType.id'),primary_key=True)
+    data_type_id = Column(Integer, ForeignKey('DataType.id'))
     data_type = relationship('DataType')
-    condition_id = Column(Integer, ForeignKey('Condition.id'),primary_key=True)
+    condition_id = Column(Integer, ForeignKey('Condition.id'))
     condition = relationship('Condition')
     value = Column(Float,nullable=False)
     meta1lbl = Column(String)
@@ -93,13 +96,14 @@ class RegionData(Base) :
 
 class SeqData(Base) :
     __tablename__ = 'SeqData'
+    __table_args__ = (UniqueConstraint('region_id','seq_type_id','condition_id'),)
 
     id = Column(Integer, primary_key=True)
-    region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
+    region_id = Column(Integer, ForeignKey('Region.id'))
     region = relationship('Region')
-    seq_type_id = Column(Integer, ForeignKey('SeqType.id'),primary_key=True)
+    seq_type_id = Column(Integer, ForeignKey('SeqType.id'))
     seq_type = relationship('SeqType')
-    condition_id = Column(Integer, ForeignKey('Condition.id'),primary_key=True)
+    condition_id = Column(Integer, ForeignKey('Condition.id'))
     condition = relationship('Condition')
     value = Column(BLOB,nullable=False)
     meta1lbl = Column(String)
