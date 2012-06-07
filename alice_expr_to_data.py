@@ -128,8 +128,7 @@ for data_i, r in enumerate(f) :
         cond_rec = get_lu_or_add(adipo_sess,cond,Condition)
         for typ, fld in zip(('control expression','experiment expression','log2 expression fold change'),('val1','val2','log2fc')) :
             cond_field = '%s.%s'%(cond,fld)
-            data_field_d = {'id':data_i,
-                            'region_id':region_rec.id,
+            data_field_d = {'region_id':region_rec.id,
                             'data_type_id':data_types[typ].id,
                             'condition_id':cond_rec.id,
                             'value': float(r[cond_field]),
