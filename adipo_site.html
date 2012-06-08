@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}AdipoSight dev{% endblock %}
+
+{% block style %}
+    .nicebox {
+        border: 1pt solid #888;
+        padding: 4pt;
+        margin: 2pt;
+    }
+{% endblock %}
+
+{% block top %}
+    <div class="nicebox">
+        {{ top_content }}
+    </div>
+{% endblock %}
+
+{% block bottom %}
+    <div class="nicebox">
+    {{ bottom_content }}
+    </div>
+{% endblock %}

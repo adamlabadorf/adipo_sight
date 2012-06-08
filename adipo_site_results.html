@@ -1,0 +1,19 @@
+    <table>
+        <tr>
+        {% for h in header: %}
+            <th>{{ h }}</th>
+        {% endfor %}
+        </tr>
+        {% for r in content: %}
+            <tr>
+            {% for f in r: %}
+                <td>{{ f }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    <img src="{{ heatmap_fn }}"/>
+    <img src="{{ boxplot_fn }}"/>
+    <form name="adipo_form">
+    <input type="submit" value="New Search"/>
+    </form>
