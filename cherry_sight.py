@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+
 import cPickle
 import os
+import random
 import re
+
+from collections import defaultdict
 
 import cherrypy
 import matplotlib.pyplot as mp
@@ -8,8 +13,11 @@ import numpy as np
 
 from jinja2 import Environment, FileSystemLoader, Template
 
-from adipo_sight import *
 import log
+
+from adipo_sight import *
+from mww import mww
+
 
 class AdipoSite:
 
@@ -77,7 +85,7 @@ class AdipoSite:
         diff_expr_d = self.diff_expr()
         templ_d.update(diff_expr_d)
 
-        motif_d = self.motif_enrich()
+        motif_d = self.motif_enrich(gene_list)
         templ_d.update(motif_d)
 
         top_template = self.template_env.get_template('adipo_site_results.html')
@@ -123,7 +131,7 @@ class AdipoSite:
         templ_d['heatmap_fn'] = heatmap_fn
 
         # make the log2 fold change heatmap
-        self.make_heatmap(data_mat,conditions,pass_genes,heatmap_fn,'log2 fold change')
+        #self.make_heatmap(data_mat,conditions,pass_genes,heatmap_fn,'log2 fold change')
 
         return templ_d
 
@@ -147,9 +155,11 @@ class AdipoSite:
 
         fig.savefig(fn)
 
-    def motif_enrich(self) :
+    def motif_enrich(self,gene_list) :
 
         d = {}
+
+        # TODO: I need to split out the motif results by condition!!!
 
         # get motif scores
         scores = (self.sess.query(Region,SeqData)
@@ -159,17 +169,39 @@ class AdipoSite:
                            .filter(RegionSet.name.in_(gene_list))
                  ).all()
 
-        # TODO - I was just about to get motif scores out of the db and make
-        # a heatmap
-
         score_mat = []
+        gene_names = []
         for region, seqdata in scores :
             motif_scores = cPickle.loads(seqdata.value)
             score_mat.append(motif_scores)
-        log.debug('motif score mat: %d x %d'%(len(score_mat),len(score_mat)))
+        log.debug('motif score mat: %d x %d'%(len(score_mat),len(score_mat[0])))
+        score_mat = np.array(score_mat)
+
+        all_genes = (self.sess.query(Region,SeqData)
+                     .join((RegionSet,Region.region_sets))
+                     .join(SeqData)
+                     .filter(SeqData.seq_type.has(SeqType.name=='motif scores'))
+                    ).all()
+
+        # compare motif scores of requested genes to all hypersensitive regions
+        # in the dataset
+        all_scores = np.zeros((len(all_genes),score_mat.shape[1]))
+        for i, (region, seqdata) in enumerate(all_genes) :
+            scores = cPickle.loads(seqdata.value)
+            all_scores[i] = scores
+        log.debug('all_scores: %s'%str(all_scores.shape))
+        pvals = mww(score_mat.T,all_scores.T,True)
+        log.debug('pvals: %s'%str(pvals.shape))
+
+        motif_names = np.array(open('motif_names.txt').readlines())
+        thresh_names, thresh_pvals = motif_names[pvals<0.05], pvals[pvals<0.05]
+        thresh_imgs = np.array(['images/motif_logos/%03d_motif.png'%i for i in np.where(pvals<0.05)[0]])
+        log.debug('np.where(pvals<0.05): %s'%str([i for i in np.where(pvals<0.05)]))
+        d['motifs'] = zip(thresh_names[thresh_pvals.argsort()],
+                          thresh_pvals[thresh_pvals.argsort()],
+                          thresh_imgs[thresh_pvals.argsort()])
 
         return d
-
 
     def make_boxplot(self,vectors,fn,title=None) :
         fig = mp.figure()
