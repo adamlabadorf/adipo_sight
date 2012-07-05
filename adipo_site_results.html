@@ -1,19 +1,24 @@
+    <img src="{{ heatmap_fn }}"/>
+
+    {% if motifs: %}
     <table>
         <tr>
-        {% for h in header: %}
-            <th>{{ h }}</th>
-        {% endfor %}
+            <th>Motif</th>
+            <th>P-value</th>
+            <th>Logo</th>
         </tr>
-        {% for r in content: %}
+        {% for m in motifs: %}
             <tr>
-            {% for f in r: %}
-                <td>{{ f }}</td>
-            {% endfor %}
+                <td>{{m[0]}}</td>
+                <td>{{m[1]}}</td>
+                <td><img src="{{m[2]}}"</img></td>
             </tr>
         {% endfor %}
     </table>
-    <img src="{{ heatmap_fn }}"/>
-    <img src="{{ boxplot_fn }}"/>
+    {% else: %}
+    No significant motif enrichment found
+    {% endif %}
+
     <form name="adipo_form">
     <input type="submit" value="New Search"/>
     </form>
