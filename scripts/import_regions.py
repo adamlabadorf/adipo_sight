@@ -8,7 +8,7 @@ from optparse import OptionParser
 
 import sqlalchemy
 
-from adipo_sight import *
+from adipo_sight.db import *
 
 usage = '%prog [options] <db fn> <regions fn>'
 desc = """Import the regions in <regions fn> into adipo sight db <db fn>.

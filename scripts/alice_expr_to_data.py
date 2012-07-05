@@ -6,7 +6,7 @@ import sys
 from csv import DictReader
 from subprocess import Popen, PIPE
 
-from adipo_sight import *
+from adipo_sight.db import *
 from KGDB import *
 
 fieldnames =["gene",

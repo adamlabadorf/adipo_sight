@@ -7,7 +7,7 @@ from itertools import count
 import sqlalchemy
 from numpy import loadtxt
 
-from adipo_sight import *
+from adipo_sight.db import *
 
 conditions = 'dex','hi','tnf','hypoxia'
 

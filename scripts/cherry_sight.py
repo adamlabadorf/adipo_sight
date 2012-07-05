@@ -15,8 +15,8 @@ from jinja2 import Environment, FileSystemLoader, Template
 
 import log
 
-from adipo_sight import *
-from mww import mww
+from adipo_sight.db import *
+from adipo_sight.mww import mww
 
 
 class AdipoSite:

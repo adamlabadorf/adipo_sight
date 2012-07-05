@@ -16,7 +16,7 @@ import matplotlib.pyplot as mp
 
 from jinja2 import Environment, FileSystemLoader, Template
 
-from adipo_sight import *
+from adipo_sight.db import *
 import log
 
 # set up logging
