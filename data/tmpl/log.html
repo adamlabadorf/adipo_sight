@@ -1,0 +1,19 @@
+    <style>
+    .debug {
+        color: #999;
+    }
+    .info {
+        color: #555;
+    }
+    .warning {
+        color: #000;
+    }
+    .error {
+        font-weight: bold;
+        color: #f33;
+    }
+    </style>
+    <span class="warning">Application log:</span><br/>
+    {% for line in log %}
+        {{ log_to_html(line) }} <br/>
+    {% endfor %}

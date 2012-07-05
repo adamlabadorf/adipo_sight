@@ -1,0 +1,24 @@
+    <img src="{{ heatmap_fn }}"/>
+
+    {% if motifs: %}
+    <table>
+        <tr>
+            <th>Motif</th>
+            <th>P-value</th>
+            <th>Logo</th>
+        </tr>
+        {% for m in motifs: %}
+            <tr>
+                <td>{{m[0]}}</td>
+                <td>{{m[1]}}</td>
+                <td><img src="{{m[2]}}"</img></td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% else: %}
+    No significant motif enrichment found
+    {% endif %}
+
+    <form name="adipo_form">
+    <input type="submit" value="New Search"/>
+    </form>
