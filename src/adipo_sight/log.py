@@ -16,7 +16,7 @@ info = logging.info
 warn = logging.warning
 error = logging.error
 
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, PackageLoader, Template
 
 def log_to_html(l) :
     try :
@@ -27,12 +27,14 @@ def log_to_html(l) :
     return l
 
 def get_log_content() :
-    env = Environment(loader=FileSystemLoader('./'))
+    loader = PackageLoader('adipo_sight','data/tmpl')
+    env = Environment(loader=loader)
     template = env.get_template('log.html')
 
     env.globals['log_to_html'] = log_to_html
 
-    return template.render(log=open(log_fn).readlines()[::-1])   
+    log = open(log_fn).readlines()[::-1]
+    return template.render(log=log[:100])
 
 if __name__ == '__main__' :
 

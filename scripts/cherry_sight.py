@@ -11,29 +11,32 @@ import cherrypy
 import matplotlib.pyplot as mp
 import numpy as np
 
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, PackageLoader, Template
 
-import log
+import adipo_sight.log as log
 
-from adipo_sight.db import *
+import adipo_sight.db as db
 from adipo_sight.mww import mww
 
+from pkg_resources import resource_filename
 
 class AdipoSite:
 
     def __init__(self) :
 
         # get a database connection and look for genes
-        self.sess = get_session('adipo_sight.db')
+        self.db_name = db_name = resource_filename('adipo_sight','data/adipo_sight.db')
+        self.sess = db.get_session(db_name)
 
-        self.template_env = Environment(loader=FileSystemLoader('./'))
+        loader = PackageLoader('adipo_sight','data/tmpl')
+        self.template_env = Environment(loader=loader)
 
     def check_session(fn) :
         def f(self,*args) :
             try :
-                self.sess.query(RegionSet).first() # this will fail if the session is invalid
+                self.sess.query(db.RegionSet).first() # this will fail if the session is invalid
             except :
-                self.sess = get_session('adipo_sight.db')
+                self.sess = db.get_session(self.db_name)
             return fn(self,*args)
         return f
 
@@ -70,7 +73,7 @@ class AdipoSite:
 
         self.region_sets = []
         for gene in gene_list :
-            region_set = self.sess.query(RegionSet).filter(RegionSet.name==gene).first()
+            region_set = self.sess.query(db.RegionSet).filter(db.RegionSet.name==gene).first()
             if region_set is None :
                 log.error('could not find record for gene %s'%gene)
                 continue
@@ -82,8 +85,8 @@ class AdipoSite:
 
         templ_d = {}
 
-        diff_expr_d = self.diff_expr()
-        templ_d.update(diff_expr_d)
+        #diff_expr_d = self.diff_expr()
+        #templ_d.update(diff_expr_d)
 
         motif_d = self.motif_enrich(gene_list)
         templ_d.update(motif_d)
@@ -95,7 +98,7 @@ class AdipoSite:
 
     def diff_expr(self) :
 
-        conditions = [r.name for r in self.sess.query(Condition.name).all()]
+        conditions = [r.name for r in self.sess.query(db.Condition.name).all()]
         header = ['Gene']+conditions
         data = []
 
@@ -104,9 +107,9 @@ class AdipoSite:
             data.append([region_set.name])
 
             for region in region_set.regions :
-                log.debug('Diff Expr Region: %s'%region.name)
+                log.debug('Diff Expr db.Region: %s'%region.name)
                 for data_rec in region.region_data :
-                    log.debug('Diff Expr Region Data: %s (%s)'%(data_rec.value,data_rec.data_type.name))
+                    log.debug('Diff Expr db.Region Data: %s (%s)'%(data_rec.value,data_rec.data_type.name))
                     if data_rec.data_type.name == 'log2 expression fold change' :
                         if float(data_rec.meta2) < 0.05 : # meta2 is qvalue
                             data[-1].append(data_rec.value)
@@ -162,11 +165,11 @@ class AdipoSite:
         # TODO: I need to split out the motif results by condition!!!
 
         # get motif scores
-        scores = (self.sess.query(Region,SeqData)
-                           .join((RegionSet,Region.region_sets))
-                           .join(SeqData)
-                           .filter(SeqData.seq_type.has(SeqType.name=='motif scores'))
-                           .filter(RegionSet.name.in_(gene_list))
+        scores = (self.sess.query(db.Region,db.SeqData)
+                           .join((db.RegionSet,db.Region.region_sets))
+                           .join(db.SeqData)
+                           .filter(db.SeqData.seq_type.has(db.SeqType.name=='motif scores'))
+                           .filter(db.RegionSet.name.in_(gene_list))
                  ).all()
 
         score_mat = []
@@ -177,10 +180,10 @@ class AdipoSite:
         log.debug('motif score mat: %d x %d'%(len(score_mat),len(score_mat[0])))
         score_mat = np.array(score_mat)
 
-        all_genes = (self.sess.query(Region,SeqData)
-                     .join((RegionSet,Region.region_sets))
-                     .join(SeqData)
-                     .filter(SeqData.seq_type.has(SeqType.name=='motif scores'))
+        all_genes = (self.sess.query(db.Region,db.SeqData)
+                     .join((db.RegionSet,db.Region.region_sets))
+                     .join(db.SeqData)
+                     .filter(db.SeqData.seq_type.has(db.SeqType.name=='motif scores'))
                     ).all()
 
         # compare motif scores of requested genes to all hypersensitive regions
@@ -193,7 +196,8 @@ class AdipoSite:
         pvals = mww(score_mat.T,all_scores.T,True)
         log.debug('pvals: %s'%str(pvals.shape))
 
-        motif_names = np.array(open('motif_names.txt').readlines())
+        motif_name_fn = resource_filename('adipo_sight','data/motif_names.txt')
+        motif_names = np.array(open(motif_name_fn).readlines())
         thresh_names, thresh_pvals = motif_names[pvals<0.05], pvals[pvals<0.05]
         thresh_imgs = np.array(['images/motif_logos/%03d_motif.png'%i for i in np.where(pvals<0.05)[0]])
         log.debug('np.where(pvals<0.05): %s'%str([i for i in np.where(pvals<0.05)]))
@@ -215,11 +219,18 @@ class AdipoSite:
 
 if __name__ == "__main__" :
 
+    import adipo_sight
+    import pkg_resources
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    package_dir = pkg_resources.resource_filename(adipo_sight.__name__,'data')
     conf = {'/images': {'tools.staticdir.on': True,
-                        'tools.staticdir.dir': os.path.join(current_dir, 'images'),
+                        'tools.staticdir.dir': os.path.join(package_dir, 'images'),
                         'tools.staticdir.content_types': {'png': 'image/png'}
                        }
            }
 
+    cherrypy.config.update({ 'server.socket_host': '127.0.0.1', # localhost
+                             #'server.socket_host': '18.68.8.98', # for forwarding from web server
+                             'server.socket_port': 8888
+                           })
     cherrypy.quickstart(AdipoSite(), '/', config=conf)
