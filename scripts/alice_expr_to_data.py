@@ -120,12 +120,13 @@ for data_i, r in enumerate(f) :
         region_rec.region_sets.append(gene_set)
 
     conditions = 'tnf','dex','hi','hypo'
+    cond_names = 'tnf','dex','hi','hypoxia'
 
     # val1 is the control condition expression value
     # val2 is the experiment condition expression value
     # log2fc is the log fold change of experiment/condition
-    for cond in conditions :
-        cond_rec = get_lu_or_add(adipo_sess,cond,Condition)
+    for cond,cond_name in zip(conditions,cond_name) :
+        cond_rec = get_lu_or_add(adipo_sess,cond_name,Condition)
         for typ, fld in zip(('control expression','experiment expression','log2 expression fold change'),('val1','val2','log2fc')) :
             cond_field = '%s.%s'%(cond,fld)
             data_field_d = {'region_id':region_rec.id,

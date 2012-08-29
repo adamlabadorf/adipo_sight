@@ -2,6 +2,69 @@
 <head>
     <title>{% block title %}{% endblock %}</title>
     <style>
+        /* cool color palette
+           zombo light: #EEF;
+           extra light: #DDF;
+           light: #5FC0CE
+           medium: #36BBCE
+           med-dark: #03899C
+           dark: #1F6B75
+           extra dark: #015965
+        */
+
+        .nicebox {
+            border: 1pt solid #015965;
+            padding: 4pt;
+            margin: 2pt;
+        }
+        .pval {
+            text-align: center;
+        }
+        .downcolor {
+            color: #EEF;
+            background: #36bbce;
+        }
+        .hidowncolor {
+            color: #EEF;
+            background: #03899C;
+        }
+        .upcolor {
+            background: #ffbd73;
+        }
+        .hiupcolor {
+            background: #ff7c00;
+        }
+        .hisigcolor {
+            background: #ff7c00;
+        }
+        .sigcolor {
+            background: #ffbd73;
+        }
+        table.adipo {
+            border-collapse:collapse;
+            margin: 0px 5px 0px 5px;
+        }
+        table.adipo,th.adipo,td.adipo {
+            border: 1px solid white;
+            font-size: 11pt;
+            font-family: serif;
+            background-color: #EEF;
+            color: #1F6B75;
+            min-width: 50px;
+            padding: 4px;
+        }
+        th.adipo {
+            font-weight: bold;
+            background-color: #1F6B75;
+            color: #EEF;
+        }
+        a.adipo {
+            font-weight: bold;
+            background-color: #1F6B75;
+            color: #EEF;
+            font-decoration: none;
+        }
+
         {% block style %}
         {% endblock %}
     </style>

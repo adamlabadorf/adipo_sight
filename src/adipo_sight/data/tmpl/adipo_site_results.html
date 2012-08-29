@@ -1,23 +1,149 @@
     <img src="{{ heatmap_fn }}"/>
 
-    {% if motifs: %}
-    <table>
-        <tr>
-            <th>Motif</th>
-            <th>P-value</th>
-            <th>Logo</th>
+    {% macro colorize_pval(val) -%}
+        {% if val -%}
+            {% if val < 0.01 -%}
+                hisigcolor
+            {%- elif val < 0.05 -%}
+                sigcolor
+            {%- endif %}
+        {%- endif %}
+    {%- endmacro %}
+
+    {% macro colorize_foldchange(val) -%}
+        {% if val -%}
+            {% if val > 2.0 -%}
+                hiupcolor
+            {% elif val > 1.0 -%}
+                upcolor
+            {%- elif val < -2.0 -%}
+                hidowncolor
+            {%- elif val < -1.0 -%}
+                downcolor
+            {%- endif %}
+        {%- endif %}
+    {%- endmacro %}
+
+
+    {% macro float_format(val,fmt) -%}
+        {% if val %}
+            {{ fmt|format(val) }}
+        {% endif %}
+    {%- endmacro %}
+
+    {% set cond_labels = ('Dex','High Insulin','TNF&alpha;','Hypoxia','7-2_bg','7-2_nobg') %}
+    {% set cond_names = ('dex','hi','tnf','hypoxia','7-2_bg','7-2_nobg') %}
+
+    <!-- summary stats --!>
+    <table class="adipo">
+        <tr class="adipo">
+            <th class="adipo">Summary</th>
+            {% for l,c in zip(cond_labels,cond_names) : %}
+            <th class="adipo">{{ l }}</th>
+            {% endfor %}
         </tr>
-        {% for m in motifs: %}
-            <tr>
-                <td>{{m[0]}}</td>
-                <td>{{m[1]}}</td>
-                <td><img src="{{m[2]}}"</img></td>
+        <tr class="adipo">
+            <td class="adipo">Hypersensitive regions</td>
+            {% for c in cond_names : %}
+            <td class="pval">{{ hs_regions.get(c) }}</td>
+            {% endfor %}
+        </tr>
+        <tr class="adipo">
+            <td class="adipo">Enriched motifs (p-value &lt; 0.05)</td>
+            {% for c in cond_names : %}
+            <td class="pval">{{ enriched_motifs.get(c) }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+
+    <br/>
+
+
+    {% if motifs: %}
+
+        <table class="adipo">
+
+            <tr class="adipo">
+                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby=name">Motif</a></th>
+            {% for l,c in zip(cond_labels,cond_names) : %}
+                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby={{c}}">{{l}}</a></th>
+            {% endfor %}
+            </tr>
+        {% for motif_i, vals in motifs|dictofdictsort(sortby): %}
+            <tr class="adipo">
+                <td class="adipo">{{vals['name']|join(', ')}}</td>
+                {% for c in cond_names : %}
+                <td class="pval {{ colorize_pval(vals.get(c)) }}">{{ float_format(vals.get(c),"%.2e") }}</td>
+                {% endfor %}
             </tr>
         {% endfor %}
-    </table>
+        </table>
+
+        <br/>
+
+        <!-- report of found vs missing genes --!>
+        <table>
+            <tr class="adipo">
+                <td class="adipo"># genes found in DB</td>
+                <td class="adipo">{{ found|length }}</td>
+            </tr>
+            <tr class="adipo">
+                <td class="adipo">Genes found</td>
+                <td class="adipo">{{ found|join(', ') }}</td>
+            </tr>
+            <tr class="adipo">
+                <td class="adipo"># genes not found in DB</td>
+                <td class="adipo">{{ missing|length }}</td>
+            </tr>
+            <tr class="adipo">
+                <td class="adipo">Genes not in DB</td>
+                <td class="adipo">{{ missing|join(', ') }}</td>
+            </tr>
+        </table>
+
+
     {% else: %}
-    No significant motif enrichment found
+
+        No significant motif enrichment found<br/>
+
     {% endif %}
+
+    {% if diff_expr: %}
+
+        <!-- from top table -->
+        <tr class="adipo">
+            <td class="adipo">Differentially expressed genes (q-value &lt; 0.05)</td>
+            {% for c in cond_names : %}
+            <td class="pval">{{ diff_expr_cnts.get(c) }}</td>
+            {% endfor %}
+        </tr>
+
+
+         <table class="adipo">
+
+            <tr class="adipo">
+                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby=name">Gene</a></th>
+            {% for l,c in zip(cond_labels,cond_names) : %}
+                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby={{c}}">{{l}}</a></th>
+            {% endfor %}
+            </tr>
+        {% for gene_i, vals in diff_expr|dictofdictsort(sortby): %}
+            <tr class="adipo">
+                <td class="adipo">{{vals['name']}}</td>
+                {% for c in cond_names : %}
+                <td class="pval {{ colorize_foldchange(vals.get(c)) }}">{{ float_format(vals.get(c),"%.2f") }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+
+    {% else: %}
+
+        No differentially expressed genes found<br/>
+
+    {% endif %}
+
+    <br/>
 
     <form name="adipo_form">
     <input type="submit" value="New Search"/>

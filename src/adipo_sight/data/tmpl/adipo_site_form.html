@@ -1,6 +1,8 @@
-        <form name="adipo_form">
-        <textarea name="gene_list"></textarea>
-        </textarea>
+        <form name="adipo_form" enctype="multipart/form-data" method="post">
+        Enter genes, separated by spaces:<br/>
+        <textarea name="gene_list"></textarea><br/>
+        <input type="file" name="gene_file"/><br/>
         <input type="submit"/>
+        It may take up to a minute to return results depending on the number of genes submitted.
         </form>
 

@@ -26,7 +26,7 @@ def log_to_html(l) :
         l = '<span class="error">Error parsing log line: %s</span>'%l
     return l
 
-def get_log_content() :
+def get_log_content(lines=100) :
     loader = PackageLoader('adipo_sight','data/tmpl')
     env = Environment(loader=loader)
     template = env.get_template('log.html')
@@ -34,7 +34,7 @@ def get_log_content() :
     env.globals['log_to_html'] = log_to_html
 
     log = open(log_fn).readlines()[::-1]
-    return template.render(log=log[:100])
+    return template.render(log=log[:lines])
 
 if __name__ == '__main__' :
 
