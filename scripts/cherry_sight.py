@@ -101,10 +101,15 @@ class EnrichThread(threading.Thread) :
         scores = []
         for batch in gene_list_batches :
             score_q = (self.db_session.query(db.Region,db.SeqData)
-                               .join((db.RegionSet,db.Region.region_sets))
+                               .join(db.RegionMembership)
+                               .join(db.RegionSet)
                                .join(db.SeqData)
                                .filter(db.SeqData.seq_type.has(db.SeqType.name=='motif scores'))
                                .filter(db.RegionSet.name.in_(batch))
+                               .filter(db.RegionMembership.dist_to_feature.between(
+                                        -int(self.args['upstream']),
+                                        int(self.args['downstream'])
+                                      ))
                      )
             scores.extend(score_q.all())
 
@@ -113,7 +118,8 @@ class EnrichThread(threading.Thread) :
         condition_scores = defaultdict(list)
         cherrypy.log('loading motif scores')
         for region, seqdata in scores :
-            for region_set in region.region_sets :
+            for region_membership in region.membership :
+                region_set = region_membership.region_set
                 gene_names.add(region_set.name)
             condition = seqdata.condition.name
             motif_scores = cPickle.loads(seqdata.value)
@@ -223,7 +229,9 @@ class AdipoSite:
         self.args = {'diff_exp_pval':0.05,
                      'diff_exp_hi':1.2,
                      'diff_exp_low':-1.2,
-                     'diff_hyp_pval':0.05}
+                     'diff_hyp_pval':0.05,
+                     'upstream':10000,
+                     'downstream':10000}
         self.args.update(kwargs)
 
         return self.args
