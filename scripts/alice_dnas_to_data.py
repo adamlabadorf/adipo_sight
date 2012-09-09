@@ -64,13 +64,16 @@ if __name__ == '__main__' :
         peak_f = DictReader(open('dnase/%s'%peak_fn),delimiter='\t',
                             fieldnames=('chrom','chromStart','chromEnd','name','pval'))
 
-        genes_fn = '%s_hypersensitive_peaks_genes_u3kd2k_tss.txt'%cond
+        #genes_fn = '%s_hypersensitive_peaks_genes_u3kd2k_tss.txt'%cond
+        genes_fn = '%s_hypersensitive_peaks_genes_u10kd10k_tss.txt'%cond
         genes_f = DictReader(open('dnase/%s'%genes_fn),delimiter='\t')
         peak_gene_map = defaultdict(set) 
         print 'loading peak-gene mapping'
         for r in genes_f :
             k = '%s:%s-%s'%(r['chrom'],r['chromStart'],r['chromEnd'])
-            peak_gene_map[k].add(r['geneSymbol'].lower())
+            sym = r['geneSymbol'].lower()
+            peak_gene_map[k].add((sym,r['dist from feature']))
+        peak_membership_map = {}
 
         print 'iterating peaks'
         i = 0
@@ -107,9 +110,14 @@ if __name__ == '__main__' :
                               )
             sess.add(seq_data)
 
-            for sym in peak_gene_map[peak_key] :
+            for sym, dist in peak_gene_map[peak_key] :
 
                 region_set = gene_db_d.get(sym)
+
+                try :
+                    dist = int(dist)
+                except TypeError :
+                    print 'invalid dist to feature found for %s %s: %s'%(peak_key,sym,dist)
 
                 if region_set is None :
 
@@ -117,11 +125,17 @@ if __name__ == '__main__' :
                     sess.add(region_set)
                     gene_db_d[sym] = region_set
 
-                region_set.regions.append(region)
-
-                """
-                """
-
+                # check for existing membership - might happen if two isoforms
+                # of a gene have the same symbol in the db
+                if peak_membership_map.get((sym,peak_key)) is not None :
+                    membership = peak_membership_map.get((sym,peak_key))
+                    membership.dist_to_feature = min(membership.dist_to_feature,dist)
+                else :
+                    membership = RegionMembership(dist_to_feature=dist)
+                    membership.region = region
+                    membership.region_set = region_set
+                    #region_set.member_regions.append(membership)
+                    peak_membership_map[(sym,peak_key)] = membership
 
                 #seq_data = SeqData(id=seq_id_counter.next(),
                 """
@@ -137,7 +151,6 @@ if __name__ == '__main__' :
                     sess.rollback()
                     break
                 """
-        print seq_data.region_id
+
         sess.commit()
-        print seq_data.region_id
 
