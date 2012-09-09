@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}AdipoSight results{% endblock %}
+
+{% block top %}
+
+<b>Motif logos for motifs:</b><br/>
+{{motifs|join(',')}}
+<br/>
+<table class="adipo">
+    {% for name,img_fn in motif_logos : %}
+    <tr class="adipo">
+        <td class="adipo">{{name}}</td>
+        <td class="adipo"><img src="images/motif_logos/{{img_fn}}"/></td>
+    </tr>
+    {% endfor %}
+</table>
+
+<form method="GET">
+<textarea name="motifs" rows=4 cols=50>{{motifs|join(',')}}</textarea><br/>
+<input type="submit">
+</form>
+
+{% endblock %}

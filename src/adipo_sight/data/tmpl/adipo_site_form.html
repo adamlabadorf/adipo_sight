@@ -1,8 +1,9 @@
-        <form name="adipo_form" enctype="multipart/form-data" method="post">
+        <form name="adipo_form" action="submit" enctype="multipart/form-data" method="post">
         Enter genes, separated by spaces:<br/>
         <textarea name="gene_list"></textarea><br/>
         <input type="file" name="gene_file"/><br/>
-        <input type="submit"/>
+        <input type="submit"/><br/>
+        <a class="logo" href="submit?gene_list=example">Example analysis with genes bound by p65</a><br/>
         It may take up to a minute to return results depending on the number of genes submitted.
         </form>
 

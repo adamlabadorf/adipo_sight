@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Query Interface{% endblock %}
+
+{% block top %}
+
+<form method="GET">
+<textarea cols="80" name="stmt">{{stmt}}</textarea><br/>
+<input type="submit"/>
+</form>
+
+<br/>
+
+<b>Result:</b>
+{% if fields : %}
+    <table class="adipo">
+        {% for f in fields : %}
+            <th>{{f}}</th>
+        {% endfor %}
+        {% for r in resp : %}
+            <tr class="adipo">
+                {% for f in fields : %}
+                    <td class="adipo">{{repr(r[f])}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+{% else : %}
+    {{resp}}
+{% endif %}
+
+{% endblock %}

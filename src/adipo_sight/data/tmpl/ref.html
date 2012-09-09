@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% macro ref_table(name,recs) -%}
+    <h3>{{name}}</h3>
+    <table class="adipo">
+    {% for r in recs: %}
+        <tr class="adipo">
+            <td class="adipo">{{r.id}}</td>
+            <td class="adipo">{{r.name}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{%- endmacro %}
+
+{% block title %}DB reference{% endblock %}
+
+{% block top %}
+
+{{ref_table("Condition",conditions)}}
+
+{{ref_table("RegionType",region_types)}}
+
+{{ref_table("SeqType",seq_types)}}
+
+{% endblock %}

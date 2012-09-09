@@ -1,3 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}AdipoSight results{% endblock %}
+
+{% block javascript %}
+function unhide(divID) {
+    var item = document.getElementById(divID);
+    if (item) {
+        item.className = (item.className=='hidden') ? 'unhidden':'hidden';
+    }
+}
+{% endblock %}
+
+{% block top %}
+
     <img src="{{ heatmap_fn }}"/>
 
     {% macro colorize_pval(val) -%}
@@ -31,27 +46,32 @@
         {% endif %}
     {%- endmacro %}
 
-    {% set cond_labels = ('Dex','High Insulin','TNF&alpha;','Hypoxia','7-2_bg','7-2_nobg') %}
-    {% set cond_names = ('dex','hi','tnf','hypoxia','7-2_bg','7-2_nobg') %}
+    {# these were for the full dataset list, only using the conditions now
+    {% set cond_labels = ('Dex','High Insulin','TNF&alpha;','Hypoxia','7-2_bg','7-2_nobg','fake_p65') %}
+    {% set cond_names = ('dex','hi','tnf','hypoxia','7-2_bg','7-2_nobg','fake_p65') %}
+    #}
+
+    {% set cond_labels = ('Dex','High Insulin','TNF&alpha;','Hypoxia') %}
+    {% set cond_names = ('dex','hi','tnf','hypoxia') %}
 
     <!-- summary stats --!>
     <table class="adipo">
         <tr class="adipo">
             <th class="adipo">Summary</th>
             {% for l,c in zip(cond_labels,cond_names) : %}
-            <th class="adipo">{{ l }}</th>
+            <th class="data_col adipo">{{ l }}</th>
             {% endfor %}
         </tr>
         <tr class="adipo">
             <td class="adipo">Hypersensitive regions</td>
             {% for c in cond_names : %}
-            <td class="pval">{{ hs_regions.get(c) }}</td>
+            <td class="data_col pval">{{ hs_regions.get(c) }}</td>
             {% endfor %}
         </tr>
         <tr class="adipo">
             <td class="adipo">Enriched motifs (p-value &lt; 0.05)</td>
             {% for c in cond_names : %}
-            <td class="pval">{{ enriched_motifs.get(c) }}</td>
+            <td class="data_col pval">{{ enriched_motifs.get(c) }}</td>
             {% endfor %}
         </tr>
     </table>
@@ -61,23 +81,51 @@
 
     {% if motifs: %}
 
+        {% set sorted_motifs = motifs|dictofdictsort(sortby) %}
+
         <table class="adipo">
 
             <tr class="adipo">
                 <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby=name">Motif</a></th>
             {% for l,c in zip(cond_labels,cond_names) : %}
-                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby={{c}}">{{l}}</a></th>
+                <th class="data_col adipo"><a class="adipo" href="?hid={{hid}}&sortby={{c}}">{{l}}</a></th>
             {% endfor %}
             </tr>
-        {% for motif_i, vals in motifs|dictofdictsort(sortby): %}
+        {# {% for motif_i, vals in motifs|dictofdictsort(sortby): %} #}
+        {% for motif_i, vals in sorted_motifs[:20]: %}
             <tr class="adipo">
-                <td class="adipo">{{vals['name']|join(', ')}}</td>
+                <td class="adipo hilite"><a class="logo" href="motif_logos?motifs={{vals['name']|join(', ')}}" target="logos">{{vals['name']|join(', ')}}</a></td>
                 {% for c in cond_names : %}
-                <td class="pval {{ colorize_pval(vals.get(c)) }}">{{ float_format(vals.get(c),"%.2e") }}</td>
+                <td class="data_col pval {{ colorize_pval(vals.get(c)) }}">{{ float_format(vals.get(c),"%.2e") }}</td>
                 {% endfor %}
             </tr>
         {% endfor %}
         </table>
+
+        {% if sorted_motifs[20:]|length > 0 : %}
+        <a class="logo" href="javascript:unhide('other_motifs');">Show/hide more</a>
+        <div id="other_motifs" class="hidden">
+            <table class="adipo">
+
+            <tr class="adipo">
+                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby=name">Motif</a></th>
+            {% for l,c in zip(cond_labels,cond_names) : %}
+                <th class="data_col adipo"><a class="adipo" href="?hid={{hid}}&sortby={{c}}">{{l}}</a></th>
+            {% endfor %}
+            </tr>
+
+            {# {% for motif_i, vals in motifs|dictofdictsort(sortby): %} #}
+            {% for motif_i, vals in sorted_motifs[20:]: %}
+                <tr class="adipo">
+                    <td class="adipo hilite"><a class="logo" href="motif_logos?motifs={{vals['name']|join(', ')}}" target="logos">{{vals['name']|join(', ')}}</a></td>
+                    {% for c in cond_names : %}
+                    <td class="data_col pval {{ colorize_pval(vals.get(c)) }}">{{ float_format(vals.get(c),"%.2e") }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+        {% endif %}
 
         <br/>
 
@@ -108,43 +156,9 @@
 
     {% endif %}
 
-    {% if diff_expr: %}
-
-        <!-- from top table -->
-        <tr class="adipo">
-            <td class="adipo">Differentially expressed genes (q-value &lt; 0.05)</td>
-            {% for c in cond_names : %}
-            <td class="pval">{{ diff_expr_cnts.get(c) }}</td>
-            {% endfor %}
-        </tr>
-
-
-         <table class="adipo">
-
-            <tr class="adipo">
-                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby=name">Gene</a></th>
-            {% for l,c in zip(cond_labels,cond_names) : %}
-                <th class="adipo"><a class="adipo" href="?hid={{hid}}&sortby={{c}}">{{l}}</a></th>
-            {% endfor %}
-            </tr>
-        {% for gene_i, vals in diff_expr|dictofdictsort(sortby): %}
-            <tr class="adipo">
-                <td class="adipo">{{vals['name']}}</td>
-                {% for c in cond_names : %}
-                <td class="pval {{ colorize_foldchange(vals.get(c)) }}">{{ float_format(vals.get(c),"%.2f") }}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-        </table>
-
-    {% else: %}
-
-        No differentially expressed genes found<br/>
-
-    {% endif %}
-
     <br/>
 
-    <form name="adipo_form">
+    <form name="adipo_form" action="index">
     <input type="submit" value="New Search"/>
     </form>
+{% endblock %}
