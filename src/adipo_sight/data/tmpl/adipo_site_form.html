@@ -1,7 +1,10 @@
         <form name="adipo_form" action="submit" enctype="multipart/form-data" method="post">
         Enter genes, separated by spaces:<br/>
         <textarea name="gene_list"></textarea><br/>
+        - or -<br/>
         <input type="file" name="gene_file"/><br/>
+        Upstream/downstream gene mapping window (relative to TSS):
+        <input type="text" size=5 name="upstream" value="3000"></input>/<input type="text" size=5 name="downstream" value="3000"></input><br/>
         <input type="submit"/><br/>
         <a class="logo" href="submit?gene_list=example">Example analysis with genes bound by p65</a><br/>
         It may take up to a minute to return results depending on the number of genes submitted.
