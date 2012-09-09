@@ -12,11 +12,13 @@ scripts = ['scripts/cherry_sight.py',
 # these files do not exist in the repo, must be downloaded
 # and expanded separately!
 data_files = ['data/adipo_sight.db',
-              'data/background_motif_scores.npy',
+              'data/*.npy',
               'data/motif_names.txt',
               'data/motif_clusters.txt',
               'data/tmpl/*.html',
               'data/images/*.png',
+              'data/css/*',
+              'data/p65_bound_gene_list.txt'
             ]
 
 # setup and install
