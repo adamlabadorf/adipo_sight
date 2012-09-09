@@ -10,9 +10,9 @@ from numpy import loadtxt, load
 
 from adipo_sight.db import *
 
-#conditions = 'dex','hi','tnf','hypoxia'
+conditions = 'dex','hi','tnf','hypoxia'
 
-conditions = 'dex','hi','tnf','hypoxia','7-2_bg','7-2_nobg'
+#conditions = 'fake_p65','dex','hi','tnf','hypoxia','7-2_bg','7-2_nobg'
 
 fields = ("knownGeneID",
          "geneSymbol",
@@ -53,6 +53,7 @@ if __name__ == '__main__' :
 
         # motif scores are motifs x sequences, load and transpose
         motif_fn = '%s_hypersensitive_peaks_motif_scores.txt'%cond
+
         #peak_motif_scores = loadtxt('dnase/%s'%motif_fn).T
         motif_fn = '%s_hypersensitive_peaks_motif_scores.npy'%cond
         peak_motif_scores = load('dnase/%s'%motif_fn).T
@@ -63,7 +64,7 @@ if __name__ == '__main__' :
         peak_f = DictReader(open('dnase/%s'%peak_fn),delimiter='\t',
                             fieldnames=('chrom','chromStart','chromEnd','name','pval'))
 
-        genes_fn = '%s_hypersensitive_peaks_genes.txt'%cond
+        genes_fn = '%s_hypersensitive_peaks_genes_u3kd2k_tss.txt'%cond
         genes_f = DictReader(open('dnase/%s'%genes_fn),delimiter='\t')
         peak_gene_map = defaultdict(set) 
         print 'loading peak-gene mapping'
