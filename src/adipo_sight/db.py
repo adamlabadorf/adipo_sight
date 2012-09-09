@@ -32,10 +32,10 @@ class Chromosome(Base) :
     id = Column(Integer,primary_key=True)
     name = Column(String,unique=True)
 
-region_membership_table = Table('RegionMembership', Base.metadata,
-                            Column('region_set_id', Integer, ForeignKey('RegionSet.id'),primary_key=True),
-                            Column('region_id', Integer, ForeignKey('Region.id'),primary_key=True)
-                          )
+#region_membership_table = Table('RegionMembership', Base.metadata,
+#                            Column('region_set_id', Integer, ForeignKey('RegionSet.id'),primary_key=True),
+#                            Column('region_id', Integer, ForeignKey('Region.id'),primary_key=True)
+#                          )
 
 class Region(Base):
     __tablename__ = 'Region'
@@ -59,16 +59,18 @@ class RegionSet(Base):
 
     id = Column(Integer,primary_key=True)
     name = Column(String,unique=True)
-    regions = relationship("Region",secondary=region_membership_table,backref="region_sets")
+    #regions = relationship("Region",secondary=region_membership_table,backref="region_sets")
+    member_regions = relationship("RegionMembership")
     notes = Column(Text)
 
-#class RegionMembership(Base) :
-#    __tablename__ = 'RegionMembership'
-#    
-#    region_set_id = Column(Integer,ForeignKey('RegionSet.id'),primary_key=True)
-#    region_set = relationship('RegionSet')
-#    region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
-#    region = relationship('Region')
+class RegionMembership(Base) :
+    __tablename__ = 'RegionMembership'
+    
+    region_set_id = Column(Integer,ForeignKey('RegionSet.id'),primary_key=True)
+    region_set = relationship('RegionSet')
+    region_id = Column(Integer, ForeignKey('Region.id'),primary_key=True)
+    region = relationship('Region',backref="membership")
+    dist_to_feature = Column(Integer)
 
 class Condition(Base) :
     __tablename__ = 'Condition'
